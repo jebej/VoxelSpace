@@ -38,30 +38,29 @@ function run(map="C1W")
     pz = 80f0
     θ  = 0f0
 
-    try
-        while mfb_wait_sync(window)
-            # Compute movement direction and apply to pos
-            dx,dy,dz,dθ = compute_movement!(θ)
-            px += dx
-            py += dy
-            pz += dz
-            θ  += dθ
+    while mfb_wait_sync(window)
+        # Compute movement direction and apply to pos
+        dx,dy,dz,dθ = compute_movement!(θ)
+        px += dx
+        py += dy
+        pz += dz
+        θ  += dθ
 
-            # Update texture
-            render!(data,hbuffer,datac,datah,(px,py,pz),θ,WIN_HEIGHT>>1,WIN_HEIGHT>>1)
+        # Update texture
+        render!(data,hbuffer,datac,datah,(px,py,pz),θ,WIN_HEIGHT>>1,WIN_HEIGHT>>1)
 
-            state = mfb_update(window, data)
-            state == MiniFB.STATE_OK || break
+        state = mfb_update(window, data)
+        state == MiniFB.STATE_OK || break
 
-            # Compute FPS
-            t2 = time_ns()
-            @printf("\b\b\b%3.0f", 1E9/(t2-t1))
-            t1 = t2
-        end
-    finally
-        mfb_close(window)
-        println()
+        # Compute FPS
+        t2 = time_ns()
+        @printf("\b\b\b%3.0f", 1E9/(t2-t1))
+        t1 = t2
     end
+
+    mfb_close(window)
+    println()
+
     return nothing
 end
 
