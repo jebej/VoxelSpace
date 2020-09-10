@@ -1,4 +1,4 @@
-Pkg.activate(".")
+Pkg.activate(dirname(@__DIR__))
 using BenchmarkTools, VoxelSpace
 using VoxelSpace: WIN_WIDTH, WIN_HEIGHT, render!
 
