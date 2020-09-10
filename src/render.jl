@@ -1,7 +1,7 @@
-function render!(data, hbuffer, colormap, heightmap, pos::Tuple{T,T,T}, θ::T, horizon, zscale) where T<:Number
+function render!(data, hbuffer, colormap, heightmap, pos::Tuple{T,T,T}, θ::T, horizon, zscale) where T<:Real
     # draw background (light blue sky)
-    fill!(data, RGB(0.529f0, 0.808f0, 0.980f0))
-    fill!(hbuffer, 1)
+    fill!(data, RGB24(0.529f0, 0.808f0, 0.980f0))
+    fill!(hbuffer, WIN_HEIGHT)
     # precompute some constants
     w = Base.multiplicativeinverse(MAP_WIDTH%UInt)
     h = Base.multiplicativeinverse(MAP_HEIGHT%UInt)
@@ -21,14 +21,14 @@ function render!(data, hbuffer, colormap, heightmap, pos::Tuple{T,T,T}, θ::T, h
             pxi = 1 + rem(unsafe_trunc(Int, px)%UInt, w)
             pyi = 1 + rem(unsafe_trunc(Int, py)%UInt, h)
             # compute the on-screen height of the feature
-            height = min(WIN_HEIGHT, unsafe_trunc(Int, (heightmap[pxi,pyi]-pos[3])*scale) + horizon)
+            height = unsafe_trunc(Int, (pos[3]-heightmap[pxi,pyi])*scale) + horizon
             # assign color to column
             color = colormap[pxi,pyi]
-            for i in hbuffer[j] : height
+            for i in max(height,1) : hbuffer[j]
                 data[j,i] = color
             end
             # keep track of feature height
-            if height > hbuffer[j]
+            if height < hbuffer[j]
                 hbuffer[j] = height
             end
             # move to next view-line feature position

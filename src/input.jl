@@ -7,45 +7,40 @@ const mov_up = Ref(false)
 const mov_down = Ref(false)
 const mov_boost = Ref(false)
 
-function key_cb_fun(_, key, scancode, action, mods)
-    if key == GLFW.KEY_W # up
-        action == GLFW.PRESS   && (mov_forward[] = true)
-        action == GLFW.RELEASE && (mov_forward[] = false)
-    elseif key == GLFW.KEY_A # left
-        action == GLFW.PRESS   && (mov_left[] = true)
-        action == GLFW.RELEASE && (mov_left[] = false)
-    elseif key == GLFW.KEY_D # right
-        action == GLFW.PRESS   && (mov_right[] = true)
-        action == GLFW.RELEASE && (mov_right[] = false)
-    elseif key == GLFW.KEY_S # down
-        action == GLFW.PRESS   && (mov_back[] = true)
-        action == GLFW.RELEASE && (mov_back[] = false)
-    elseif scancode == 57 # space
-        action == GLFW.PRESS   && (mov_up[] = true)
-        action == GLFW.RELEASE && (mov_up[] = false)
-    elseif scancode == 29 # l-ctrl
-        action == GLFW.PRESS   && (mov_down[] = true)
-        action == GLFW.RELEASE && (mov_down[] = false)
-    elseif scancode == 42 # l-shift
-        action == GLFW.PRESS   && (mov_boost[] = true)
-        action == GLFW.RELEASE && (mov_boost[] = false)
+function key_cb_fun(_, key, _, action)
+    if key == MiniFB.KB_KEY_W # up
+        mov_forward[] = action
+    elseif key == MiniFB.KB_KEY_A # left
+        mov_left[] = action
+    elseif key == MiniFB.KB_KEY_D # right
+        mov_right[] = action
+    elseif key == MiniFB.KB_KEY_S # down
+        mov_back[] = action
+    elseif key == MiniFB.KB_KEY_SPACE # space
+        mov_up[] = action
+    elseif key == MiniFB.KB_KEY_LEFT_CONTROL # l-ctrl
+        mov_down[] = action
+    elseif key == MiniFB.KB_KEY_LEFT_SHIFT # l-shift
+        mov_boost[] = action
     end
     return nothing
 end
 
-const mouse_pos  = Float32[0,0]
-const mouse_move = Float32[0,0]
+
+const mouse_pos = Int32[0,0]
+const mouse_mov = Int32[0,0]
 
 function mouse_cb_fun(_, x, y)
-    mouse_move .= (x,y) .- mouse_pos
-    mouse_pos  .= (x,y)
+    mouse_mov .= (x,y) .- mouse_pos
+    mouse_pos .= (x,y)
     return nothing
 end
 
+
 function compute_movement!(θ)
     # mouse
-    dθ = -mouse_move[1]*1f-2
-    mouse_move .= 0f0
+    dθ = -mouse_mov[1]*1f-2
+    fill!(mouse_mov, zero(Int32))
     # keyboard; signs empirically adjusted...
     sθ, cθ = sincos(θ)
     dx = (mov_right[]-mov_left[])*cθ - (mov_forward[]-mov_back[])*sθ
