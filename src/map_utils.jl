@@ -1,7 +1,7 @@
 function read_map(map::String)
     map_dir = joinpath(dirname(@__DIR__), "maps")
-    datac = RGB24.(load(joinpath(map_dir,map)*".png"))
-    datah = Float32.(reinterpret(UInt8,load(joinpath(map_dir,MAP_LIST[map])*".png")))
+    datac = RGB24.(PNGFiles.load(joinpath(map_dir,map)*".png"))
+    datah = Float32.(reinterpret(UInt8,PNGFiles.load(joinpath(map_dir,MAP_LIST[map])*".png")))
     return datac, datah
 end
 

@@ -1,6 +1,6 @@
 # strongly inspired by https://github.com/s-macke/VoxelSpace
 module VoxelSpace
-using MiniFB, Printf, ColorTypes, FileIO
+using MiniFB, ColorTypes, PNGFiles, Printf
 using Base: unsafe_trunc
 
 include("map_utils.jl")
