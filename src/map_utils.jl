@@ -2,7 +2,24 @@ function read_map(map::String)
     map_dir = joinpath(dirname(@__DIR__), "maps")
     datac = RGB24.(PNGFiles.load(joinpath(map_dir,map)*".png"))
     datah = Float32.(reinterpret(UInt8,PNGFiles.load(joinpath(map_dir,MAP_LIST[map])*".png")))
+    if size(datac,1) == 2*size(datah,1) # some height maps need to be upsampled
+        datah = upsample_map_2x(datah)
+    end
     return datac, datah
+end
+
+function upsample_map_2x(data::Matrix)
+    # simple linear interpolation
+    w,h = size(data)
+    data_2x = similar(data,2w,2h)
+    @inbounds for j = 1:h, i = 1:w
+        ii,jj = 2*(i-1)+1, 2*(j-1)+1
+        data_2x[ii,  jj]   = data[i,j]
+        data_2x[ii+1,jj]   = (data[i,j] + data[mod1(i+1,w),j])/2
+        data_2x[ii,  jj+1] = (data[i,j] + data[i,mod1(j+1,h)])/2
+        data_2x[ii+1,jj+1] = (data[i,j] + data[mod1(i+1,w),mod1(j+1,h)])/2
+    end
+    return data_2x
 end
 
 const MAP_LIST = Dict{String,String}(
