@@ -1,6 +1,6 @@
-function render!(data, hbuffer, colormap, heightmap, pos::Tuple{T,T,T}, θ::T, horizon, zscale) where T<:Real
+function render!(fbuffer, hbuffer, cmap, hmap::Matrix{T}, pos::Tuple{T,T,T}, θ::T) where T<:Real
     # draw background (light blue sky)
-    fill!(data, RGB24(0.529f0, 0.808f0, 0.980f0))
+    fill!(fbuffer, RGB24(0.529f0, 0.808f0, 0.980f0))
     fill!(hbuffer, WIN_HEIGHT)
     # precompute some constants
     w = Base.multiplicativeinverse(MAP_WIDTH%UInt)
@@ -14,23 +14,21 @@ function render!(data, hbuffer, colormap, heightmap, pos::Tuple{T,T,T}, θ::T, h
         # segment the line in equal increments
         dx = 2z*cθ/WIN_WIDTH; dy = -2z*sθ/WIN_WIDTH
         # compute local z-scale factor
-        scale = T(zscale)/z
+        scale = ZSCALE/z
         # raster horizontal view-line and draw the vertical for each segment
         for j in 1 : WIN_WIDTH
             # compute map indices from px & py
-            pxi = 1 + rem(unsafe_trunc(Int, px)%UInt, w)
-            pyi = 1 + rem(unsafe_trunc(Int, py)%UInt, h)
+            pxi = UInt(1) + rem(unsafe_trunc(Int, px)%UInt, w)
+            pyi = UInt(1) + rem(unsafe_trunc(Int, py)%UInt, h)
             # compute the on-screen height of the feature
-            height = unsafe_trunc(Int, (pos[3]-heightmap[pxi,pyi])*scale) + horizon
-            # assign color to column
-            color = colormap[pxi,pyi]
+            height = unsafe_trunc(Int, muladd(pos[3]-hmap[pxi,pyi], scale, HORIZON))
+            # assign color to column in framebuffer
+            color = cmap[pxi,pyi]
             for i in max(height,1) : hbuffer[j]
-                data[j,i] = color
+                fbuffer[j,i] = color
             end
             # keep track of feature height
-            if height < hbuffer[j]
-                hbuffer[j] = height
-            end
+            hbuffer[j] = min(height, hbuffer[j])
             # move to next view-line feature position
             px += dx; py += dy
         end

@@ -12,11 +12,13 @@ const WIN_WIDTH = 1200
 const WIN_HEIGHT = 900
 const MAP_WIDTH = 1024
 const MAP_HEIGHT = 1024
+const ZSCALE = 1024f0/2
+const HORIZON = 1024f0/2
 
 function run(map="C1W")
-    # Load map and create buffer
+    # Load map and create framebuffer
     datac, datah = read_map(map)
-    data = Matrix{RGB24}(undef, WIN_WIDTH, WIN_HEIGHT)
+    fbuffer = Matrix{RGB24}(undef, WIN_WIDTH, WIN_HEIGHT)
     hbuffer = Vector{Int}(undef, WIN_WIDTH)
 
     # Create window
@@ -46,16 +48,17 @@ function run(map="C1W")
         pz += dz
         θ  += dθ
 
-        # Update texture
-        render!(data,hbuffer,datac,datah,(px,py,pz),θ,WIN_HEIGHT>>1,WIN_HEIGHT>>1)
-
-        state = mfb_update(window, data)
-        state == MiniFB.STATE_OK || break
+        # Render viewport
+        render!(fbuffer,hbuffer,datac,datah,(px,py,pz),θ)
 
         # Compute FPS
         t2 = time_ns()
         @printf("\b\b\b%3.0f", 1E9/(t2-t1))
         t1 = t2
+
+        # Update framebuffer
+        state = mfb_update(window, fbuffer)
+        state == MiniFB.STATE_OK || break
     end
 
     mfb_close(window)
