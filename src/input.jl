@@ -7,7 +7,7 @@ const mov_up = Ref(false)
 const mov_down = Ref(false)
 const mov_boost = Ref(false)
 
-function key_cb_fun(_, key, _, action)
+function key_cb_fun(window, key, _, action)
     if key == MiniFB.KB_KEY_W # up
         mov_forward[] = action
     elseif key == MiniFB.KB_KEY_A # left
@@ -22,6 +22,8 @@ function key_cb_fun(_, key, _, action)
         mov_down[] = action
     elseif key == MiniFB.KB_KEY_LEFT_SHIFT # l-shift
         mov_boost[] = action
+    elseif key == MiniFB.KB_KEY_ESCAPE
+        mfb_close(window)
     end
     return nothing
 end
@@ -30,7 +32,7 @@ end
 const mouse_pos = Int32[0,0]
 const mouse_mov = Int32[0,0]
 
-function mouse_cb_fun(_, x, y)
+function mouse_cb_fun(window, x, y)
     mouse_mov .= (x,y) .- mouse_pos
     mouse_pos .= (x,y)
     return nothing

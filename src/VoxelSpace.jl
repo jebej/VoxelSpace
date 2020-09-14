@@ -20,7 +20,7 @@ function run(map="C1W")
     hbuffer = Vector{Int}(undef, WIN_WIDTH)
 
     # Create window
-    window = mfb_open_ex("VoxelSpace.jl", WIN_WIDTH, WIN_HEIGHT, MiniFB.WF_RESIZABLE);
+    window = mfb_open("VoxelSpace.jl", WIN_WIDTH, WIN_HEIGHT)
 
     # Set up input callbacks
     key_cb_fun_c = @cfunction(key_cb_fun, Cvoid, (Ptr{Cvoid}, mfb_key, mfb_key_mod, Bool))
